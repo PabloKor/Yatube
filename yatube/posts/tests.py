@@ -47,3 +47,36 @@ class TestPost(TestCase):
         self.assertContains(response, self.post.text)
 
 
+<<<<<<< HEAD
+=======
+class TestPostEdit(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="Pavel",
+            password="12345"
+        )
+        self.client.force_login(self.user)
+        self.post = Post.objects.create(text='Test tex', author=self.user)
+        self.new_text = 'Change test text'
+        self.client.post(f"/{self.user.username}/{self.post.pk}/edit/", {"text": self.new_text})
+
+    def test_postedit_index(self):
+        """Авторизованный пользователь может отредактировать свой пост
+         и его содержимое изменится на главной странице сайта (index)"""
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, self.new_text)
+
+    def test_postedit_profile(self):
+        """Авторизованный пользователь может отредактировать свой пост
+         и его содержимое изменится на персональной странице пользователя (profile)"""
+        response = self.client.get(reverse('profile', kwargs=dict(username=self.user.username)))
+        self.assertContains(response, self.new_text)
+
+    def test_postedit_view(self):
+        """Авторизованный пользователь может отредактировать свой пост
+         и его содержимое изменится на отдельной странице поста (post)"""
+        response = self.client.get(reverse('post', kwargs=dict(username=self.user.username,
+                                                               post_id=self.post.id)))
+        self.assertContains(response, self.new_text)
+>>>>>>> temp-branch
