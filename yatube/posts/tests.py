@@ -1,0 +1,49 @@
+from django.test import TestCase, Client
+from django.urls import reverse
+from .models import Post, Group, User
+
+
+class TestPost(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="Pavel",
+            password="12345"
+        )
+        self.post = Post.objects.create(text='Test tex', author=self.user)
+
+    def test_login_progile(self):
+        """После регистрации пользователя создается его персональная страница (profile)"""
+        response = self.client.get(reverse('profile', kwargs={'username': self.user.username}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_authorization_user_create_post(self):
+        """Авторизованный пользователь может опубликовать пост (new)"""
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('post_edit', kwargs=dict(username=self.user.username,
+                                                                    post_id=self.post.id)))
+        self.assertEqual(response.status_code, 200)
+
+    def test_logout_post(self):
+        """Неавторизованный посетитель не может опубликовать пост (его редиректит на страницу входа)"""
+        response = self.client.get(reverse('new_post'), follow=True)
+        self.assertEqual(('/auth/login/?next=/new/', 302), response.redirect_chain[0])
+
+    def test_post_on_index(self):
+        """После публикации поста новая запись появляется на главной странице сайта (index)"""
+        # self.client.force_login(self.user)
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, self.post.text)
+
+    def test_post_on_profile(self):
+        """После публикации поста новая запись появляется на главной странице сайта (profile)"""
+        response = self.client.get(reverse('profile', kwargs=dict(username=self.user.username)))
+        self.assertContains(response, self.post.text)
+
+    def test_post_on_post(self):
+        """После публикации поста новая запись появляется на главной странице сайта (post)"""
+        response = self.client.get(reverse('post', kwargs=dict(username=self.user.username,
+                                                               post_id=self.post.id)))
+        self.assertContains(response, self.post.text)
+
+
