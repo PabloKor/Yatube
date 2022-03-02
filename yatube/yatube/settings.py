@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -25,10 +26,7 @@ SECRET_KEY = 'django-insecure-gy4y4&=hi#t#3-lvi$ua9qs3sg=bagnw4pv#6%%^h59vk2*zd=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost",
-                 "127.0.0.1",
-                 "[::1]",
-                 "testserver", ]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -141,3 +139,5 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
 # Идентификатор текущего сайта
 SITE_ID = 1
+
+
