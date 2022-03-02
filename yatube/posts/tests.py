@@ -47,8 +47,6 @@ class TestPost(TestCase):
         self.assertContains(response, self.post.text)
 
 
-<<<<<<< HEAD
-=======
 class TestPostEdit(TestCase):
     def setUp(self):
         self.client = Client()
@@ -79,4 +77,3 @@ class TestPostEdit(TestCase):
         response = self.client.get(reverse('post', kwargs=dict(username=self.user.username,
                                                                post_id=self.post.id)))
         self.assertContains(response, self.new_text)
->>>>>>> temp-branch
