@@ -5,7 +5,11 @@
   <p>{{ group.description }}</p>
 {% endblock %}
 {% block content %}
+  {% load thumbnail %}
   {% for post in posts %}
+    {% thumbnail post.image "900x339" crop="center" upscale=True as im %}
+      <img class="card-img" src="{{ im.url }}">
+    {% endthumbnail %}
     <h3>Автор: {{ post.author.get_full_name }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}</h3>
     <p>{{ post.text|linebreaks }}</p>
   {% endfor %}

@@ -3,8 +3,12 @@
 {% block title %}Последние обновления на сайте{% endblock %}
 {% block header %}Последние обновления на сайте{% endblock %}
 {% block content %}
-
+  {% load thumbnail %}
   {% for post in page %}
+{#    <div class="card mb-3 mt-1 shadow-sm">#}
+    {% thumbnail post.image "900x339" crop="center" upscale=True as im %}
+      <img class="card-img" src="{{ im.url }}">
+    {% endthumbnail %}
     <h3>
       Автор: {{ post.author.get_full_name }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}
     </h3>

@@ -77,3 +77,19 @@ class TestPostEdit(TestCase):
         response = self.client.get(reverse('post', kwargs=dict(username=self.user.username,
                                                                post_id=self.post.id)))
         self.assertContains(response, self.new_text)
+
+    def test_page_not_found(self):
+        """Возвращает ли сервер код 404, если страница не найдена."""
+        import uuid
+        test_uuid = uuid.uuid4()
+        response = self.client.get(f'/{test_uuid}/')
+        self.assertEqual(response.status_code, 404)
+
+
+class TestPageImg(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username="Pavel",
+            password="12345"
+        )
