@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 from django.core.paginator import Paginator
 
 
@@ -20,13 +20,18 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.order_by("-pub_date")
     # posts = Post.objects.filter(group=group).order_by("-pub_date")[:12]
-    return render(request, "posts/group.html", {"group": group, "posts": posts})
+    paginator = Paginator(posts, 8)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    return render(request, "posts/group.html", {"group": group, 'page': page, 'paginator': paginator})
 
 
 @login_required
 def new_post(request):
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(request.POST or None,
+                        files=request.FILES or None, )
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
@@ -52,8 +57,22 @@ def profile(request, username):
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, author__username=username, id=post_id)
     author = post.author
+    form = CommentForm()
+    items = post.comments.all()
+    return render(request, 'posts/post.html', {'post': post, 'author': author, 'form': form, 'items': items})
 
-    return render(request, 'posts/post.html', {'post': post, 'author': author})
+
+@login_required
+def add_comment(request, username, post_id):
+    post = get_object_or_404(Post, author__username=username, id=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.author = request.user
+        comment.save()
+        return redirect('post', username=username, post_id=post_id)
+    return render(request, 'posts/comments.html', {'form': form})
 
 
 @login_required

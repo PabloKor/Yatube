@@ -22,15 +22,11 @@ from django.conf.urls import handler404, handler500
 
 urlpatterns = [
     path('admins/', admin.site.urls),
+    path('about/', include('django.contrib.flatpages.urls')),
+    path('about-author/', views.flatpage, {'url': '/about-author/'}, name='about'),
     path('', include('posts.urls')),
     path('auth/', include('users.urls')),
     path('auth/', include('django.contrib.auth.urls')),
-    path('about/', include('django.contrib.flatpages.urls')),
-]
-
-urlpatterns += [
-    path('about-author/', views.flatpage, {'url': '/about-author/'}, name='about'),
-
 ]
 
 handler404 = "posts.views.page_not_found"  # noqa

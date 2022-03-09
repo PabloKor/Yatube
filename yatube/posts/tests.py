@@ -90,6 +90,38 @@ class TestPageImg(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username="Pavel",
-            password="12345"
+            username="Pavel", password="12345"
         )
+        self.client.force_login(self.user)
+        self.group = Group.objects.create(title="TestGroup", slug="testgroup")
+        with open("media/posts/photo.png", "rb") as img:
+            self.client.post("/new/", {"group": self.group.id, "text": "Test post", "image": img})
+
+    def test_img_index(self):
+        """При публикации поста с изображением на главной странице(index) есть тег <img>"""
+        response = self.client.get(reverse('index'))
+        # print(response.content.decode())
+        self.assertContains(response, 'img')
+
+    def test_img_post(self):
+        """Проверяют страницу конкретной записи с картинкой: на странице есть тег <img>"""
+        response = self.client.get(reverse('post', kwargs=dict(username=self.user.username,
+                                                               post_id=self.group.id)))
+        self.assertContains(response, 'img')
+
+    def test_img_profile(self):
+        """При публикации поста с изображением на странице porfile есть тег <img>"""
+        response = self.client.get(reverse('profile', kwargs=dict(username=self.user.username)))
+        self.assertContains(response, 'img')
+
+    def test_img_group(self):
+        """При публикации поста с изображением на странице group есть тег <img>"""
+        response = self.client.get(reverse('group_posts', kwargs=dict(slug="testgroup")))
+        self.assertContains(response, 'img')
+
+    def test_not_img_upload(self):
+        """Срабатывает защита от загрузки файлов не-графических форматов"""
+        with open("media/posts/file.txt", "rb") as img:
+            self.client.post("/new/", {"group": self.group.id, "text": "Test post", "image": img})
+
+        self.assertEqual(Post.objects.count(), 1)
