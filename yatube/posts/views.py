@@ -3,10 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Group, User
 from .forms import PostForm, CommentForm
 from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
 
 
 # Create your views here.
-
+@cache_page(20, key_prefix="index_page")
 def index(request):
     post_list = Post.objects.order_by('-pub_date').all()
     paginator = Paginator(post_list, 10)
@@ -31,7 +32,7 @@ def group_posts(request, slug):
 def new_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST or None,
-                        files=request.FILES or None, )
+                        files=request.FILES or None)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
